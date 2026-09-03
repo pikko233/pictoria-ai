@@ -6,9 +6,9 @@ import Image from "next/image";
 
 const Page = () => {
   return (
-    <main className="h-screen grid grid-cols-2 relative">
+    <main className="h-screen grid md:grid-cols-2 relative">
       {/* 左侧背景图片 */}
-      <div className="relative w-full flex flex-col bg-muted p-10 text-primary-foreground">
+      <div className="relative w-full hidden md:flex flex-col bg-muted p-10 text-primary-foreground">
         <div className="absolute z-20 left-0 top-0 w-full h-[30%] bg-linear-to-t from-transparent to-black/50"></div>
         <div className="absolute z-20 left-0 bottom-0 w-full h-[30%] bg-linear-to-b from-transparent to-black/50"></div>
         <Image
@@ -34,7 +34,7 @@ const Page = () => {
       </div>
       {/* 右侧登录/注册表单 */}
       <div className="relative z-20 h-full flex flex-col items-center justify-center p-8">
-        <div className="w-[300px] max-w-sm">
+        <div className="w-[90%] max-w-xs">
           <AuthForm />
         </div>
       </div>

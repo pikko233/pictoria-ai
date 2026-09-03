@@ -1,28 +1,23 @@
-"use client";
-
 import { logout } from "@/app/actions/auth-actions";
-import { Button } from "../ui/button";
-import { toast } from "../ui/toast";
+import { toast } from "@/components/ui/toast";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Loader2 } from "lucide-react";
 
-export const LogoutButton = () => {
+export const useLogout = () => {
   const router = useRouter();
-
-  const [loading, setLoading] = useState(false);
+  const [isPending, setIsPending] = useState(false);
 
   const onLogout = async () => {
-    setLoading(true);
+    setIsPending(true);
     await toast.promise(
       new Promise(async (resolve, reject) => {
         const { success, error } = await logout();
         if (success) {
-          setLoading(false);
+          setIsPending(false);
           resolve(true);
           router.push("/login");
         } else {
-          setLoading(false);
+          setIsPending(false);
           reject(error);
         }
       }),
@@ -34,10 +29,8 @@ export const LogoutButton = () => {
     );
   };
 
-  return (
-    <Button onClick={onLogout} disabled={loading}>
-      {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-      {!loading && "退出登录"}
-    </Button>
-  );
+  return {
+    isPending,
+    onLogout,
+  };
 };
