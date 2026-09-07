@@ -16,6 +16,7 @@ import { Badge } from "../ui/badge";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import { useState } from "react";
 import { DeleteImage } from "./delete-image";
+import { toast } from "../ui/toast";
 
 interface Props {
   image: ImageRowType;
@@ -26,9 +27,18 @@ export const ImageDialog = ({ image, onClose }: Props) => {
   const [loading, setLoading] = useState(false);
 
   const handleDownload = () => {
+    // 空 url 会让 fetch 请求当前页面，把一坨 HTML 存成图片
+    if (!image.url) return;
+
     setLoading(true);
-    fetch(image.url || "")
-      .then((response) => response.blob())
+    fetch(image.url)
+      .then((response) => {
+        // 签名 URL 只有 1 小时有效期，过期后拿到的是错误页
+        if (!response.ok) {
+          throw new Error(`${response.status} ${response.statusText}`);
+        }
+        return response.blob();
+      })
       .then((blob) => {
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement("a");
@@ -45,7 +55,13 @@ export const ImageDialog = ({ image, onClose }: Props) => {
         // 释放 blob URL，否则会一直占着内存直到页面刷新
         window.URL.revokeObjectURL(url);
       })
-      .catch((error) => console.error(error))
+      .catch((error) =>
+        toast.add({
+          title: "下载失败",
+          description: error instanceof Error ? error.message : String(error),
+          type: "error",
+        }),
+      )
       .finally(() => setLoading(false));
   };
 
@@ -66,7 +82,11 @@ export const ImageDialog = ({ image, onClose }: Props) => {
               />
               {/* 图片底部按钮 */}
               <div className="flex md:hidden md:group-hover:flex absolute bottom-3 right-3 gap-2">
-                <Button size="icon" onClick={handleDownload} disabled={loading}>
+                <Button
+                  size="icon"
+                  onClick={handleDownload}
+                  disabled={loading || !image.url}
+                >
                   {loading ? (
                     <Loader2 className="size-4 animate-spin" />
                   ) : (
@@ -75,11 +95,7 @@ export const ImageDialog = ({ image, onClose }: Props) => {
                   {/* <span>下载</span> */}
                 </Button>
                 {/* 删除图片按钮 */}
-                <DeleteImage
-                  imageId={image.id.toString()}
-                  onDelete={onClose}
-                  imageName={image.image_name ?? ""}
-                />
+                <DeleteImage imageId={image.id.toString()} onDelete={onClose} />
               </div>
             </div>
             {/* 分割线 */}

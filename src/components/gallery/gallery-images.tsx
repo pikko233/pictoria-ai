@@ -16,10 +16,17 @@ import Image from "next/image";
 import { useState } from "react";
 import { ImageDialog } from "./image-dialog";
 
+// 签名失败的行拿不到 url，渲染不出来也下载不了，直接排除
+type DisplayImage = ImageRowType & { url: string };
+
 export const GalleryImages = ({ images }: { images: ImageRowType[] }) => {
   const [selectedImage, setSelectedImage] = useState<ImageRowType | null>(null);
 
-  if (images.length === 0) {
+  const displayImages = images.filter(
+    (image): image is DisplayImage => image.url !== null,
+  );
+
+  if (displayImages.length === 0) {
     return (
       <div className="flex justify-center items-center h-[50vh]">
         <Empty>
@@ -43,7 +50,7 @@ export const GalleryImages = ({ images }: { images: ImageRowType[] }) => {
   return (
     <section className="container mx-auto py-8">
       <div className="columns-2 md:columns-4 gap-4 space-y-4">
-        {images.map((image) => (
+        {displayImages.map((image) => (
           <div
             key={image.id}
             className="relative group overflow-hidden cursor-pointer transition-transform"
@@ -56,7 +63,7 @@ export const GalleryImages = ({ images }: { images: ImageRowType[] }) => {
               </p>
             </div>
             <Image
-              src={image.url ?? ""}
+              src={image.url}
               alt={image.prompt ?? "生成的图片"}
               width={image.width ?? 1024}
               height={image.height ?? 1024}

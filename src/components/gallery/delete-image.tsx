@@ -22,34 +22,27 @@ interface Props {
   imageId: string;
   onDelete?: () => void;
   className?: string;
-  imageName: string;
 }
 
-export const DeleteImage = ({
-  imageId,
-  onDelete,
-  className,
-  imageName,
-}: Props) => {
+export const DeleteImage = ({ imageId, onDelete, className }: Props) => {
   const [loading, setLoading] = useState(false);
 
   const handleDelete = () => {
     setLoading(true);
     toast.promise(
-      new Promise(async (resolve, reject) => {
-        const { success, error } = await deleteImage(imageId, imageName);
-        setLoading(false);
-        if (success) {
+      deleteImage(imageId)
+        .then(({ success, error }) => {
+          if (!success) {
+            throw new Error(error ?? "删除失败");
+          }
           onDelete?.();
-          resolve(true);
-        } else {
-          reject(error);
-        }
-      }),
+        })
+        .finally(() => setLoading(false)),
       {
         loading: "正在删除图片...",
         success: "删除成功～",
-        error: (error) => `删除失败: ${error}`,
+        error: (error) =>
+          `删除失败: ${error instanceof Error ? error.message : error}`,
       },
     );
   };

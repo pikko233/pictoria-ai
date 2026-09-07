@@ -254,7 +254,6 @@ export async function getImages(
 // 删除图片
 export async function deleteImage(
   imageId: string,
-  imageName: string,
 ): Promise<ImageResponse<ImageRowType[]>> {
   const supabase = createClient(await cookies());
 
@@ -287,10 +286,31 @@ export async function deleteImage(
     };
   }
 
-  // 从storage中删除图片资源
-  await supabase.storage
-    .from("generated_images")
-    .remove([`${user.id}/${imageName}`]);
+  // 删不到行时 error 为 null、data 为空数组，不能当成删除成功
+  const deleted = data?.[0];
+  if (!deleted) {
+    return {
+      error: "图片不存在或无权删除",
+      success: false,
+      data: null,
+    };
+  }
+
+  // 路径用数据库返回的 image_name 拼，不信任调用方传入的值
+  if (deleted.image_name) {
+    const { error: storageError } = await supabase.storage
+      .from("generated_images")
+      .remove([`${user.id}/${deleted.image_name}`]);
+
+    // 数据库记录已经删掉，用户看不到这张图了；残留的文件只是占空间，
+    // 不值得为它回滚删除操作，记下来交给后续的清理任务处理
+    if (storageError) {
+      console.error(
+        `删除 storage 文件失败: ${user.id}/${deleted.image_name}`,
+        storageError.message,
+      );
+    }
+  }
 
   // 让 client router 重新拉一次 RSC payload，图片列表随之更新
   refresh();
