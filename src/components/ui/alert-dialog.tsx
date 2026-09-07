@@ -29,6 +29,9 @@ function AlertDialogOverlay({
   return (
     <AlertDialogPrimitive.Backdrop
       data-slot="alert-dialog-overlay"
+      // 嵌套在 Sheet / Dialog 内时 Base UI 默认不渲染 backdrop，这里强制渲染，
+      // 否则确认弹窗底下露出的是外层 Sheet，盖不住
+      forceRender
       className={cn(
         "fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
         className

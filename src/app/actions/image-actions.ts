@@ -6,6 +6,8 @@ import { cookies } from "next/headers";
 import Replicate from "replicate";
 import { imageMeta } from "image-meta";
 import { randomUUID } from "crypto";
+import { Database } from "@database.types";
+import { refresh } from "next/cache";
 
 interface ImageResponse<T> {
   error: string | null;
@@ -163,5 +165,139 @@ export async function storageImages(
     error: failed.length ? failed.map((item) => item.error).join("; ") : null,
     success: failed.length === 0,
     data: uploadResults,
+  };
+}
+
+// 桶是私有的，只能用带签名的临时 URL 访问
+const SIGNED_URL_EXPIRES_IN = 3600;
+
+export type ImageRowType = {
+  url: string | null; // 签名可能失败，允许为空
+} & Database["public"]["Tables"]["generated_images"]["Row"];
+
+// 获取图片
+export async function getImages(
+  limit?: number,
+): Promise<ImageResponse<ImageRowType[]>> {
+  const supabase = createClient(await cookies());
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return {
+      error: "用户未登录",
+      success: false,
+      data: null,
+    };
+  }
+
+  let query = supabase
+    .from("generated_images")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  if (limit) {
+    query = query.limit(limit);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    return {
+      error: error.message,
+      success: false,
+      data: null,
+    };
+  }
+
+  // image_name 为空的行没有对应文件，签不出 URL
+  const rows = data.filter((row) => row.image_name !== null);
+
+  if (rows.length === 0) {
+    return { error: null, success: true, data: [] };
+  }
+
+  // 批量签名，避免每行一次请求
+  const { data: signed, error: signError } = await supabase.storage
+    .from("generated_images")
+    .createSignedUrls(
+      rows.map((row) => `${user.id}/${row.image_name}`),
+      SIGNED_URL_EXPIRES_IN,
+    );
+
+  if (signError) {
+    return {
+      error: signError.message,
+      success: false,
+      data: null,
+    };
+  }
+
+  // 按 path 建索引，不依赖返回顺序
+  const urlByPath = new Map(signed.map((item) => [item.path, item.signedUrl]));
+
+  const imagesWithUrl: ImageRowType[] = rows.map((row) => ({
+    ...row,
+    url: urlByPath.get(`${user.id}/${row.image_name}`) ?? null,
+  }));
+
+  return {
+    error: null,
+    success: true,
+    data: imagesWithUrl,
+  };
+}
+
+// 删除图片
+export async function deleteImage(
+  imageId: string,
+  imageName: string,
+): Promise<ImageResponse<ImageRowType[]>> {
+  const supabase = createClient(await cookies());
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return {
+      error: "用户未登录",
+      success: false,
+      data: null,
+    };
+  }
+
+  // 从postgresql中删除数据
+  // user_id 过滤是 RLS 之外的第二道防线，避免越权删除别人的记录
+  const { data, error } = await supabase
+    .from("generated_images")
+    .delete()
+    .eq("id", imageId)
+    .eq("user_id", user.id)
+    .select();
+
+  if (error) {
+    return {
+      error: error instanceof Error ? error.message : String(error),
+      success: false,
+      data: null,
+    };
+  }
+
+  // 从storage中删除图片资源
+  await supabase.storage
+    .from("generated_images")
+    .remove([`${user.id}/${imageName}`]);
+
+  // 让 client router 重新拉一次 RSC payload，图片列表随之更新
+  refresh();
+
+  return {
+    error: null,
+    success: true,
+    data,
   };
 }
