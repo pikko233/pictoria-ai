@@ -11,8 +11,21 @@ CREATE TYPE public.training_status AS ENUM(
 
 CREATE TYPE public.gender AS ENUM(
   'man',
-  'women'
+  'woman'
 );
+```
+
+> 上面的 `CREATE TYPE` 只对新建库生效。早期建库时该枚举写的是 `'women'`，
+> 已部署的库需要单独执行一次重命名，否则代码里的 `'woman'` 会被拒绝
+> （`invalid input value for enum gender: "woman"`）：
+>
+> ```sql
+> ALTER TYPE public.gender RENAME VALUE 'women' TO 'woman';
+> ```
+>
+> 枚举值按 OID 存储，重命名只改标签，已有记录会自动跟着变，不需要额外的 UPDATE。
+
+```sql
 
 CREATE TABLE
   public.models (
@@ -74,14 +87,14 @@ CREATE TABLE
 -- Enable ROW level security
 ALTER TABLE public.generated_images ENABLE ROW LEVEL SECURITY;
 
--- Enable users to view their own data only 
+-- Enable users to view their own data only
 create policy "Enable users to view their own data only"
 on "public"."generated_images"
 for select
 to authenticated
 using ((( SELECT auth.uid() AS uid) = user_id));
 
--- Enable users to insert their own data only 
+-- Enable users to insert their own data only
 create policy "Enable insert for users based on user_id"
 on "public"."generated_images"
 for insert

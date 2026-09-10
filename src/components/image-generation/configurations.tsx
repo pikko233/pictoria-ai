@@ -18,9 +18,10 @@ import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 import { TooltipInfo } from "../tooltip-info";
 import { toast } from "../ui/toast";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import useGeneratedImageStore from "@/stores/generated-image";
+import { Tables } from "@database.types";
 
 // 图片比例
 const ASPECT_RATIO_ARR = [
@@ -41,8 +42,7 @@ const ASPECT_RATIO_ARR = [
 const OUTPUT_FORMAT_ARR = ["webp", "jpg", "png"];
 
 type ModelValueType =
-  | "black-forest-labs/flux-dev"
-  | "black-forest-labs/flux-schnell";
+  "black-forest-labs/flux-dev" | "black-forest-labs/flux-schnell";
 
 type ModelType = {
   label: string;
@@ -95,14 +95,26 @@ const formSchema = z.object({
 
 export type ImageGenerationFormValues = z.infer<typeof formSchema>;
 
-export const Configurations = () => {
+export type TrainedModel = Tables<"models"> & {
+  label: string;
+  value: string;
+};
+
+interface Props {
+  model?: string;
+  trainedModels: TrainedModel[];
+}
+
+export const Configurations = ({ model, trainedModels }: Props) => {
+  const selectItems = [...MODELS, ...trainedModels];
+
   const generateImage = useGeneratedImageStore((state) => state.generateImage);
   const loading = useGeneratedImageStore((state) => state.loading);
 
   const form = useForm<ImageGenerationFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      model: "black-forest-labs/flux-dev",
+      model: model || "black-forest-labs/flux-dev",
       prompt: "",
       go_fast: true,
       guidance: 3.5,
@@ -137,7 +149,15 @@ export const Configurations = () => {
 
   const onSubmit = async (values: ImageGenerationFormValues) => {
     try {
-      await toast.promise(generateImage(values), {
+      const selectedModel = trainedModels.find(
+        (item) => item.value === values.model,
+      );
+
+      // 自训练模型必须带上 trigger word，否则 LoRA 权重不生效
+      const prompt = selectedModel
+        ? `photo of ${[selectedModel.trigger_word ?? "ohwx", selectedModel.gender].filter(Boolean).join(" ")}, ${values.prompt}`
+        : values.prompt;
+      await toast.promise(generateImage({ ...values, prompt }), {
         loading: "图片生成中请稍等片刻...",
         success: "图片生成成功~",
         error: (error) =>
@@ -174,7 +194,7 @@ export const Configurations = () => {
                 </FieldLabel>
 
                 <Select
-                  items={MODELS}
+                  items={selectItems}
                   value={field.value}
                   onValueChange={field.onChange}
                 >
@@ -190,6 +210,11 @@ export const Configurations = () => {
                       {MODELS.map((model) => (
                         <SelectItem value={model.value} key={model.value}>
                           {model.label}
+                        </SelectItem>
+                      ))}
+                      {trainedModels.map((trained) => (
+                        <SelectItem value={trained.value} key={trained.id}>
+                          {trained.label}
                         </SelectItem>
                       ))}
                     </SelectGroup>

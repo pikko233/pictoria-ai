@@ -27,7 +27,12 @@ const navItems = [
     icon: SquareTerminal,
   },
   {
-    title: "图片生成",
+    title: "我的图片",
+    url: "/gallery",
+    icon: Images,
+  },
+  {
+    title: "生成图片",
     url: "/image-generation",
     icon: Image,
   },
@@ -40,11 +45,6 @@ const navItems = [
     title: "训练模型",
     url: "/model-training",
     icon: Layers,
-  },
-  {
-    title: "我的图片",
-    url: "/gallery",
-    icon: Images,
   },
   {
     title: "账单",
