@@ -23,6 +23,17 @@ interface Props {
   onClose: () => void;
 }
 
+// model 存的是 Replicate 引用（owner/name:version），自训练模型的 name 形如
+// <uuid>_<13位时间戳>_<名称>，展示时只有末段对用户有意义
+const getModelDisplayName = (model: string | null) => {
+  if (!model) return "未知模型";
+
+  const name = model.split(":")[0].split("/").pop() ?? model;
+  const parts = name.split("_");
+
+  return /^\d{13}$/.test(parts[1]) ? parts.slice(2).join("_") : name;
+};
+
 export const ImageDialog = ({ image, onClose }: Props) => {
   const [loading, setLoading] = useState(false);
 
@@ -110,10 +121,15 @@ export const ImageDialog = ({ image, onClose }: Props) => {
             <div className="flex flex-wrap gap-3">
               <Badge
                 variant="secondary"
-                className="rounded-full py-4 px-3 text-sm font-normal border border-primary/30"
+                className="rounded-full py-4 px-3 text-sm font-normal border border-primary/30 max-w-full shrink"
+                title={image.model ?? undefined}
               >
-                <span className="text-primary font-semibold">模型名称: </span>
-                {image.model}
+                <span className="text-primary font-semibold shrink-0">
+                  模型名称:{" "}
+                </span>
+                <span className="min-w-0 truncate">
+                  {getModelDisplayName(image.model)}
+                </span>
               </Badge>
               <Badge
                 variant="secondary"

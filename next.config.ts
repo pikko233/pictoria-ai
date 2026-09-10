@@ -3,6 +3,9 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   output: "standalone",
   devIndicators: false,
+  // 通过 ngrok 访问 dev server 时，Next 默认会拦截跨源的 /_next、/__nextjs_*
+  // 资源（返回 403 Unauthorized），HMR 长连接也会被拒。放行 ngrok 域名。
+  allowedDevOrigins: ["*.ngrok-free.dev", "*.ngrok-free.app", "*.ngrok.io"],
   images: {
     remotePatterns: [
       {
