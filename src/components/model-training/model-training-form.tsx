@@ -128,7 +128,16 @@ export const ModelTrainingForm = () => {
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel>请选择照片中人物的性别</FieldLabel>
-              <RadioGroup className="w-fit" {...field}>
+              {/* Base UI 的 RadioGroup 只认 onValueChange，展开 field 的 onChange
+                  不会被调用，会导致 gender 永远提交默认值 */}
+              <RadioGroup
+                className="w-fit"
+                name={field.name}
+                value={field.value}
+                onValueChange={field.onChange}
+                onBlur={field.onBlur}
+                ref={field.ref}
+              >
                 <Field orientation="horizontal">
                   <RadioGroupItem value="man" id="desc-r1" />
                   <FieldContent>
