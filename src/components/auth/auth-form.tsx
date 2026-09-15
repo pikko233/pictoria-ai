@@ -29,8 +29,12 @@ const copy: Record<ModeType, { title: string; description: string }> = {
   },
 };
 
-export const AuthForm = () => {
-  const [mode, setMode] = useState<ModeType>("login");
+interface Props {
+  state: string;
+}
+
+export const AuthForm = ({ state }: Props) => {
+  const [mode, setMode] = useState<ModeType>(state as ModeType);
   const [registeredEmail, setRegisteredEmail] = useState("");
 
   const handleSignUpSuccess = (email: string) => {

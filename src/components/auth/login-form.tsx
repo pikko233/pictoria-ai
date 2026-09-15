@@ -43,7 +43,7 @@ export const LoginForm = ({ className }: Props) => {
         if (success) {
           setLoading(false);
           resolve(true);
-          redirect("/");
+          redirect("/dashboard");
         } else {
           setLoading(false);
           reject(error);

@@ -12,19 +12,20 @@
 David S.
 
 ## Model Training Note
+
 Training Data (Zip File) | Read the requirements below
 • Provide 10, 12 or 15 images in total
 • Ideal breakdown for 12 images:
+
 - 6 face closeups
 - 3/4 half body closeups (till stomach)
 - 2/3 full body shots
-• No accessories on face/head ideally
-• No other people in images
-• Different expressions, clothing, backgrounds with good lighting
-• Images to be in 1:1 resolution (1048x1048 or higher)
-• Use images of similar age group (ideally within past few months)
-• Provide only zip file (under 45MB size)
-
+  • No accessories on face/head ideally
+  • No other people in images
+  • Different expressions, clothing, backgrounds with good lighting
+  • Images to be in 1:1 resolution (1048x1048 or higher)
+  • Use images of similar age group (ideally within past few months)
+  • Provide only zip file (under 45MB size)
 
 # Landing Paeg
 
@@ -114,16 +115,16 @@ const Images = [
 - Unlock Unlimited Possibilities with Pictoria AI
 - Our platform offers a wide range of features designed to enhance your image creation experience. From easy-to-use editing tools to powerful AI-powered image generation, we have everything you need to bring your ideas to life.
 
-    - AI-Powered Photos
+  - AI-Powered Photos
     Instantly transform your photos into high-quality, lifelike images with the power of AI. Whether you need fresh content for social media, professional shots for LinkedIn, or a fun set of images for personal project.
 
-    - Diverse Photo Packs at Your Fingertips
-    Instantly transform your photos into high-quality, lifelike images with the power of AI. Whether you need fresh content for social media, professional shots for LinkedIn, or a fun set of images for personal project.    
+  - Diverse Photo Packs at Your Fingertips
+    Instantly transform your photos into high-quality, lifelike images with the power of AI. Whether you need fresh content for social media, professional shots for LinkedIn, or a fun set of images for personal project.
 
-    - Customizable Photo Generation
-    Instantly transform your photos into high-quality, lifelike images with the power of AI. Whether you need fresh content for social media, professional shots for LinkedIn, or a fun set of images for personal project.    
+  - Customizable Photo Generation
+    Instantly transform your photos into high-quality, lifelike images with the power of AI. Whether you need fresh content for social media, professional shots for LinkedIn, or a fun set of images for personal project.
 
-## Testimonials Section    
+## Testimonials Section
 
 - What Our Users Say
 - Discover why thousands are choosing Pictoria AI for effortless, high-quality photo generation, from LinkedIn headshots to vibrant social media content.
@@ -169,34 +170,59 @@ const reviews = [
 ];
 ```
 
+<!-- TODO 翻译成中英双文版本 -->
+
 ## Pricing Section
 
 - Choose the Plan That Fits Your Needs
+  选择最适合你的方案
 - Choose an affordable plan that's packed with the best features for engaging your audience, creating customer loyalty, and driving sales.
+  选择价格实惠的方案，用最出色的功能吸引受众、培养客户忠诚度、驱动销售增长。
 
 - Hobby
+  入门版
 - Essentials to kickstart your AI image creation journey, perfect for exploring creativity.
-    - 1 trained model
-    - 100 images per month
-    - Basic analytics
-    - Community support
-    - Creative resources
+  开启 AI 图像创作之旅的核心功能，适合自由探索创意。
+  - 1 trained model
+    1 个训练模型
+  - 100 images per month
+    每月 100 张图片
+  - Basic analytics
+    基础数据分析
+  - Community support
+    社区支持
+  - Creative resources
+    创意资源库
 
 - Pro
+  专业版
 - A plan designed for artists and professionals to elevate their creative projects.
-    - 2 trained models
-    - 300 images per month
-    - Advanced analytics
-    - Priority support
-    - Collaboration tools    
+  为艺术家与专业人士打造，让你的创作项目更上一层楼。
+  - 2 trained models
+    2 个训练模型
+  - 300 images per month
+    每月 300 张图片
+  - Advanced analytics
+    高级数据分析
+  - Priority support
+    优先支持
+  - Collaboration tools
+    协作工具
 
 - Enterprise
+  企业版
 - Tailored for businesses and advanced creators looking to make an impact.
-    - 5 trained models
-    - Unlimited images
-    - In-depth analytics
-    - 1-hour, dedicated support response time
-    - Custom integrations   
+  为企业与资深创作者量身定制，助你打造真正的影响力。
+  - 5 trained models
+    5 个训练模型
+  - Unlimited images
+    无限图片生成
+  - In-depth analytics
+    深度数据分析
+  - 1-hour, dedicated support response time
+    1 小时专属支持响应
+  - Custom integrations
+    定制化集成
 
 ## FAQ Section
 
@@ -205,18 +231,40 @@ const reviews = [
 
 ```javascript
 const faqsList = [
-  {question: "How does Pictoria AI work?", answer: "Pictoria AI uses advanced machine learning algorithms to analyze and understand your photos. It then generates new images based on your features and the scenarios you choose, creating realistic and personalized results."},
-  {question: "Is my data safe with Pictoria AI?", answer: "Yes, we take data privacy very seriously. All uploaded photos and generated images are encrypted and stored securely. We never share your personal data or images with third parties without your explicit consent."},
-  {question: "How many photos do I need to upload for best results?", answer: "For optimal results, we recommend uploading at least 10-20 diverse photos of yourself. This helps our AI model better understand your features and expressions, leading to more accurate and realistic generated images."},
-  {question: "Can I use Pictoria AI for commercial purposes?", answer: "Yes, our Pro and Enterprise plans include commercial usage rights for the images you generate. However, please note that you should always respect copyright and privacy laws when using AI-generated images."},
-  {question: "How often do you update the AI model?", answer: "We continuously work on improving our AI model. Major updates are typically released quarterly, with minor improvements and optimizations happening more frequently. All users benefit from these updates automatically."},
-  {question: "What are the differences between the free and paid plans?", answer: "The free plan allows you to generate up to 5 images per day. The Pro plan includes unlimited image generation, higher resolution output, and access to additional features. The Enterprise plan is tailored for businesses and offers custom integrations and dedicated support."},
-]
+  {
+    question: "How does Pictoria AI work?",
+    answer:
+      "Pictoria AI uses advanced machine learning algorithms to analyze and understand your photos. It then generates new images based on your features and the scenarios you choose, creating realistic and personalized results.",
+  },
+  {
+    question: "Is my data safe with Pictoria AI?",
+    answer:
+      "Yes, we take data privacy very seriously. All uploaded photos and generated images are encrypted and stored securely. We never share your personal data or images with third parties without your explicit consent.",
+  },
+  {
+    question: "How many photos do I need to upload for best results?",
+    answer:
+      "For optimal results, we recommend uploading at least 10-20 diverse photos of yourself. This helps our AI model better understand your features and expressions, leading to more accurate and realistic generated images.",
+  },
+  {
+    question: "Can I use Pictoria AI for commercial purposes?",
+    answer:
+      "Yes, our Pro and Enterprise plans include commercial usage rights for the images you generate. However, please note that you should always respect copyright and privacy laws when using AI-generated images.",
+  },
+  {
+    question: "How often do you update the AI model?",
+    answer:
+      "We continuously work on improving our AI model. Major updates are typically released quarterly, with minor improvements and optimizations happening more frequently. All users benefit from these updates automatically.",
+  },
+  {
+    question: "What are the differences between the free and paid plans?",
+    answer:
+      "The free plan allows you to generate up to 5 images per day. The Pro plan includes unlimited image generation, higher resolution output, and access to additional features. The Enterprise plan is tailored for businesses and offers custom integrations and dedicated support.",
+  },
+];
 ```
 
 ## CTA Section
 
 - Ready to Transform Your Photos?
 - Join thousands of users who are already creating amazing AI-generated images.
-
-

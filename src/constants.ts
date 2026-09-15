@@ -11,3 +11,13 @@ export const GENDER_LABEL_MAP = {
   man: "男",
   woman: "女",
 };
+
+export const INTERVAL_LABEL_MAP: Record<
+  "month" | "year" | "day" | "week",
+  string
+> = {
+  month: "月",
+  year: "年",
+  week: "周",
+  day: "天",
+};
