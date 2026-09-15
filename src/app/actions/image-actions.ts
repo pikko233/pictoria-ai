@@ -8,6 +8,7 @@ import { imageMeta } from "image-meta";
 import { randomUUID } from "crypto";
 import { Database } from "@database.types";
 import { refresh } from "next/cache";
+import { getCredits } from "./credit-actions";
 
 interface ImageResponse<T> {
   error: string | null;
@@ -33,6 +34,17 @@ function toImages(output: unknown): Array<{ url: string }> {
 export async function generateImageAction(
   input: ImageGenerationFormValues,
 ): Promise<ImageResponse<Array<{ url: string }>>> {
+  const { data: credits } = await getCredits();
+  if (
+    !credits?.image_generation_count ||
+    credits?.image_generation_count <= 0
+  ) {
+    return {
+      error: "额度不足，请充值或者等待额度重置",
+      success: false,
+      data: null,
+    };
+  }
   const { model, ...rest } = input;
 
   try {

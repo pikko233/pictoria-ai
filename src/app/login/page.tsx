@@ -4,7 +4,15 @@ import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import Image from "next/image";
 
-const Page = () => {
+interface Props {
+  searchParams: Promise<{
+    state?: string;
+  }>;
+}
+
+const Page = async ({ searchParams }: Props) => {
+  const { state } = await searchParams;
+
   return (
     <main className="h-screen grid md:grid-cols-2 relative">
       {/* 左侧背景图片 */}
@@ -35,7 +43,7 @@ const Page = () => {
       {/* 右侧登录/注册表单 */}
       <div className="relative z-20 h-full flex flex-col items-center justify-center p-8">
         <div className="w-[90%] max-w-xs">
-          <AuthForm />
+          <AuthForm state={state ?? "login"} />
         </div>
       </div>
     </main>

@@ -1,10 +1,41 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "node:crypto";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { supabaseAdmin } from "@/lib/supabase/admin";
 import { EmailTemplate } from "@/components/email-template";
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
+
+// 额度在发起训练时就预扣了（见 /api/train），训练没能产出模型就得退回去
+const refundTrainingCredit = async (userId: string) => {
+  const { data: credit, error } = await supabaseAdmin
+    .from("credits")
+    .select("model_training_count, max_model_training_count")
+    .eq("user_id", userId)
+    .single();
+
+  if (error) {
+    console.error("webhook 退还训练额度失败: 读取额度出错", error);
+    return;
+  }
+
+  const current = credit.model_training_count ?? 0;
+  const max = credit.max_model_training_count ?? 0;
+
+  // 退到套餐上限为止，避免任何异常路径把额度刷高
+  if (current >= max) {
+    return;
+  }
+
+  const { error: refundError } = await supabaseAdmin
+    .from("credits")
+    .update({ model_training_count: current + 1 })
+    .eq("user_id", userId);
+
+  if (refundError) {
+    console.error("webhook 退还训练额度失败:", refundError);
+  }
+};
 
 export async function POST(req: NextRequest) {
   try {
@@ -38,10 +69,7 @@ export async function POST(req: NextRequest) {
       .some(
         (expected) =>
           expected?.length === signature.length &&
-          crypto.timingSafeEqual(
-            Buffer.from(expected),
-            Buffer.from(signature),
-          ),
+          crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signature)),
       );
 
     if (!isValid) {
@@ -56,7 +84,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = JSON.parse(rawBody);
-    const supabase = createAdminClient();
+    const supabase = supabaseAdmin;
 
     const { data: userData, error: userError } =
       await supabase.auth.admin.getUserById(userId);
@@ -112,6 +140,9 @@ export async function POST(req: NextRequest) {
         version,
       })
       .eq("training_id", body.id)
+      // 只处理仍在训练中的记录：Replicate 会重投 webhook，
+      // 这个条件让重复投递命中 0 行，从而不会重复退还额度
+      .in("training_status", ["starting", "processing"])
       .select();
 
     if (updateError) {
@@ -119,9 +150,14 @@ export async function POST(req: NextRequest) {
     }
 
     // 匹配不到记录时 update 不会报错，这里必须显式告警，
-    // 否则模型会一直停在 starting 而看不出原因
+    // 否则模型会一直停在 starting 而看不出原因（重复投递也会走到这里）
     if (updated.length === 0) {
-      console.warn(`webhook 未找到 training_id 为 ${body.id} 的模型记录`);
+      console.warn(
+        `webhook 未更新任何模型记录，training_id: ${body.id}（记录不存在或已处理过）`,
+      );
+    } else if (!isSucceeded) {
+      // 训练失败或被取消，没有产出模型，把预扣的额度退回去
+      await refundTrainingCredit(userId);
     }
 
     // 训练素材已经用不上了，无论成功失败都清理掉
