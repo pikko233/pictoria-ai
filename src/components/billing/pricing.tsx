@@ -117,7 +117,7 @@ export const Pricing = ({
 
     try {
       const { errorRedirect, sessionUrl } = await checkoutWithStripe(
-        price,
+        price.id,
         currentPath,
       );
 

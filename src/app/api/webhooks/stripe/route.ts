@@ -19,6 +19,7 @@ const relevantEvents = new Set([
   "customer.subscription.created",
   "customer.subscription.updated",
   "customer.subscription.deleted",
+  "invoice.payment_succeeded",
 ]);
 
 export async function POST(req: Request) {
@@ -57,7 +58,7 @@ export async function POST(req: Request) {
           break;
         case "customer.subscription.created":
         case "customer.subscription.updated":
-        case "customer.subscription.deleted":
+        case "customer.subscription.deleted": {
           const subscription = event.data.object as Stripe.Subscription;
           await manageSubscriptionStatusChange(
             subscription.id,
@@ -65,7 +66,8 @@ export async function POST(req: Request) {
             event.type === "customer.subscription.created",
           );
           break;
-        case "checkout.session.completed":
+        }
+        case "checkout.session.completed": {
           const checkoutSession = event.data.object as Stripe.Checkout.Session;
           if (checkoutSession.mode === "subscription") {
             const subscriptionId = checkoutSession.subscription;
@@ -76,6 +78,24 @@ export async function POST(req: Request) {
             );
           }
           break;
+        }
+        case "invoice.payment_succeeded": {
+          const invoice = event.data.object as Stripe.Invoice;
+          const subscription =
+            invoice.parent?.subscription_details?.subscription;
+
+          // 只有周期续费才重置额度。首期账单的 billing_reason 是
+          // subscription_create，它的额度已经由 subscription.created 发过，
+          // 在这里再发一次会把用户当期已消耗的额度抹平
+          if (invoice.billing_reason === "subscription_cycle" && subscription) {
+            await manageSubscriptionStatusChange(
+              typeof subscription === "string" ? subscription : subscription.id,
+              invoice.customer as string,
+              true,
+            );
+          }
+          break;
+        }
         default:
           throw new Error("Unhandled relevant event!");
       }

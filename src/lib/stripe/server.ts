@@ -4,24 +4,20 @@ import Stripe from "stripe";
 import { stripe } from "@/lib/stripe/config";
 import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
-import { createOrRetrieveCustomer } from "@/lib/supabase/admin";
+import { createOrRetrieveCustomer, supabaseAdmin } from "@/lib/supabase/admin";
 import {
   getURL,
   getErrorRedirect,
   calculateTrialEndUnixTimestamp,
   readMetadataCount,
 } from "@/lib/helpers";
-import { Tables } from "@database.types";
-
-type Price = Tables<"prices">;
-
 type CheckoutResponse = {
   errorRedirect?: string;
   sessionUrl?: string;
 };
 
 export async function checkoutWithStripe(
-  price: Price,
+  priceId: string,
   redirectPath: string = "/billing",
 ): Promise<CheckoutResponse> {
   try {
@@ -35,6 +31,20 @@ export async function checkoutWithStripe(
     if (error || !user) {
       console.error(error);
       throw new Error("Could not get user session.");
+    }
+
+    // 这是可由客户端直接调用的 Server Action，入参一概不可信，因此只接收
+    // priceId，价格本身（尤其是决定发放多少额度的 metadata）一律从服务端记录里查，
+    // 否则调用方可以拿低价 price 配上伪造的高额度 metadata
+    const { data: price, error: priceError } = await supabaseAdmin
+      .from("prices")
+      .select("*")
+      .eq("id", priceId)
+      .eq("active", true)
+      .single();
+
+    if (priceError || !price) {
+      throw new Error("Price not found.");
     }
 
     // Retrieve or create the customer in Stripe

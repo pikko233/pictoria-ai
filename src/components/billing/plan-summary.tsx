@@ -54,7 +54,7 @@ export const PlanSummary = ({
             </div>
             <div className="col-span-5 flex flex-col pr-12">
               <div className="flex items-center justify-between text-sm font-normal pb-1">
-                <span>剩余图片生成额度</span>
+                <span>剩余模型训练额度</span>
                 <span className="font-semibold">剩余 0 次</span>
               </div>
               <div>

@@ -29,16 +29,17 @@ export async function getCredits(): Promise<Response<Credit>> {
     };
   }
 
+  // 用 maybeSingle：用户可能还没有额度记录，single 在 0 行时会直接报错
   const { data: creditData, error } = await supabase
     .from("credits")
     .select("*")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
-  if (error) {
+  if (error || !creditData) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : String(error),
+      error: error?.message ?? "未找到该用户的额度记录",
       data: null,
     };
   }

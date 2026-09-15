@@ -8,7 +8,14 @@ import Link from "next/link";
 import { ResetForm } from "./reset-form";
 import { CheckEmail } from "./check-email";
 
-type ModeType = "login" | "sign-up" | "reset" | "check-email";
+const MODES = ["login", "sign-up", "reset", "check-email"] as const;
+
+type ModeType = (typeof MODES)[number];
+
+// state 来自 URL query，可以是任意字符串。非法值必须回落到 login：
+// 否则 copy[mode] 为 undefined，组件读 title 时会直接崩掉整个登录页。
+const toMode = (value: string): ModeType =>
+  (MODES as readonly string[]).includes(value) ? (value as ModeType) : "login";
 
 const copy: Record<ModeType, { title: string; description: string }> = {
   login: {
@@ -34,7 +41,7 @@ interface Props {
 }
 
 export const AuthForm = ({ state }: Props) => {
-  const [mode, setMode] = useState<ModeType>(state as ModeType);
+  const [mode, setMode] = useState<ModeType>(() => toMode(state));
   const [registeredEmail, setRegisteredEmail] = useState("");
 
   const handleSignUpSuccess = (email: string) => {

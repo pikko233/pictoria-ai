@@ -300,9 +300,13 @@ const manageSubscriptionStatusChange = async (
     `Inserted/updated subscription [${subscription.id}] for user [${uuid}]`,
   );
 
-  // 订阅生效时发放额度。额度数值由 checkoutWithStripe 写在
-  // subscription_data.metadata 上，随订阅一起带过来。
-  if (subscription.status === "active" || subscription.status === "trialing")
+  // 只在订阅刚建立、或进入新计费周期时发额度（两者都由 createAction 标记）。
+  // customer.subscription.updated 会因为更换支付方式、metadata 变动等原因反复
+  // 触发，若每次都发，用户已经消耗掉的额度就被悄悄重置回满额了。
+  if (
+    createAction &&
+    (subscription.status === "active" || subscription.status === "trialing")
+  )
     await updateUserCredits(uuid, subscription.metadata);
 
   // For a new subscription copy the billing details to the customer object.
@@ -332,24 +336,16 @@ const updateUserCredits = async (userId: string, metadata: Json) => {
     max_model_training_count: modelTrainingCount,
   };
 
-  const { data: updated, error: updateError } = await supabaseAdmin
+  // 必须是一次 upsert 而不是「先 update，没命中再 insert」：
+  // checkout.session.completed 与 customer.subscription.created 两个 webhook
+  // 几乎同时到达，分成两步时双方都会读到「没有记录」，于是各插一行。
+  // 依赖 credits.user_id 上的唯一索引把并发写入收敛到同一行。
+  const { error: upsertError } = await supabaseAdmin
     .from("credits")
-    .update(creditsData)
-    .eq("user_id", userId)
-    .select("id");
+    .upsert(creditsData, { onConflict: "user_id" });
 
-  if (updateError)
-    throw new Error(`Credits update failed: ${updateError.message}`);
-
-  // update 命中 0 行说明该用户还没有额度记录，补建一条。
-  if (!updated?.length) {
-    const { error: insertError } = await supabaseAdmin
-      .from("credits")
-      .insert(creditsData);
-
-    if (insertError)
-      throw new Error(`Credits insert failed: ${insertError.message}`);
-  }
+  if (upsertError)
+    throw new Error(`Credits upsert failed: ${upsertError.message}`);
 
   console.log(
     `Granted credits to user [${userId}]:`,
