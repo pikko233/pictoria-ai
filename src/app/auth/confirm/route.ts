@@ -29,6 +29,14 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(redirectTo);
   }
 
+  // 重置密码要靠 verifyOtp 建立的这个 session 去调 updateUser，
+  // 在这里登出的话，/reset-password 提交新密码时会拿不到用户。
+  // 注册确认则相反，登出后让用户走一次正常登录。
+  if (type === "recovery") {
+    redirectTo.pathname = "/reset-password";
+    return NextResponse.redirect(redirectTo);
+  }
+
   const { error: signOutError } = await supabase.auth.signOut({
     scope: "local",
   });
