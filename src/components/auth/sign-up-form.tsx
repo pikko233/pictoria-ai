@@ -2,7 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
-import z from "zod";
 import { Field, FieldError, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
 import { cn } from "@/lib/utils";
@@ -11,29 +10,7 @@ import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { signUp } from "@/app/actions/auth-actions";
 import { toast } from "../ui/toast";
-
-const formSchema = z
-  .object({
-    full_name: z.string().min(3, "用户名至少包含3个字符"),
-    email: z.email("邮箱格式不正确"),
-    password: z
-      .string()
-      .min(8, "密码至少需要 8 位")
-      .max(32, "密码最多 32 位")
-      .regex(/[A-Za-z]/, "密码至少需要包含一个字母")
-      .regex(/\d/, "密码至少需要包含一个数字")
-      .regex(
-        /^[A-Za-z\d!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]+$/,
-        "密码包含不支持的字符",
-      ),
-    confirmPassword: z.string().min(1, "请再次输入密码"),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "两次输入的密码不一致",
-    path: ["confirmPassword"],
-  });
-
-export type SignUpValues = z.infer<typeof formSchema>;
+import { signUpSchema, type SignUpValues } from "@/lib/schemas";
 
 type Props = {
   className?: string;
@@ -44,7 +21,7 @@ export const SignUpForm = ({ className, onSuccess }: Props) => {
   const [loading, setLoading] = useState(false);
 
   const form = useForm<SignUpValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(signUpSchema),
     defaultValues: {
       full_name: "",
       email: "",

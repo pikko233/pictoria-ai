@@ -2,7 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
-import z from "zod";
 import { Field, FieldError, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
 import { cn } from "@/lib/utils";
@@ -12,25 +11,7 @@ import { toast } from "../ui/toast";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { changePassword } from "@/app/actions/auth-actions";
-
-const formSchema = z
-  .object({
-    password: z
-      .string()
-      .min(8, "密码至少需要 8 位")
-      .max(32, "密码最多 32 位")
-      .regex(/[A-Za-z]/, "密码至少需要包含一个字母")
-      .regex(/\d/, "密码至少需要包含一个数字")
-      .regex(
-        /^[A-Za-z\d!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]+$/,
-        "密码包含不支持的字符",
-      ),
-    confirmPassword: z.string().min(1, "请再次输入密码"),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "两次输入的密码不一致",
-    path: ["confirmPassword"],
-  });
+import { changePasswordSchema, type ChangePasswordValues } from "@/lib/schemas";
 
 type Props = {
   className?: string;
@@ -40,15 +21,15 @@ export const ChangePasswordForm = ({ className }: Props) => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<ChangePasswordValues>({
+    resolver: zodResolver(changePasswordSchema),
     defaultValues: {
       password: "",
       confirmPassword: "",
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const onSubmit = (values: ChangePasswordValues) => {
     setLoading(true);
     // server action 返回 { success, error } 而不是 reject，
     // 不显式抛错的话 toast.promise 会无条件走 success 分支，把真实错误吞掉。

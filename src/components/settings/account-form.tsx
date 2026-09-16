@@ -15,6 +15,7 @@ import { Field, FieldDescription, FieldError, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
 import { toast } from "../ui/toast";
 import { updateProfile } from "@/app/actions/auth-actions";
+import { updateProfileSchema } from "@/lib/schemas";
 import { Button } from "../ui/button";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
@@ -23,8 +24,9 @@ interface Props {
   user: User;
 }
 
-const formSchema = z.object({
-  fullName: z.string("用户名不能为空").min(2).max(50),
+// 邮箱框是只读展示，不参与提交，所以只在表单这层声明；
+// fullName 的规则和 server action 共用一份。
+const formSchema = updateProfileSchema.extend({
   email: z.email("请输入正确的邮箱格式"),
 });
 
