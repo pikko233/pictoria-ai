@@ -2,7 +2,6 @@
 
 import {
   Credit,
-  Price,
   ProductWithPrices,
   SubscriptionWithProducts,
 } from "@/lib/types";

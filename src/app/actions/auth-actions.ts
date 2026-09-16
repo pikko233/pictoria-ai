@@ -55,3 +55,47 @@ export async function logout(): Promise<AuthResponse> {
     success: !error,
   };
 }
+
+export async function updateProfile(values: {
+  fullName: string;
+}): Promise<AuthResponse> {
+  const supabase = createClient(await cookies());
+  const { data: profileData, error } = await supabase.auth.updateUser({
+    data: {
+      full_name: values.fullName,
+    },
+  });
+
+  return {
+    data: profileData || null,
+    error: error?.message ?? null,
+    success: !error,
+  };
+}
+
+export async function resetPassword(email: string): Promise<AuthResponse> {
+  const supabase = createClient(await cookies());
+  const { data: resetPasswordData, error } =
+    await supabase.auth.resetPasswordForEmail(email);
+
+  return {
+    data: resetPasswordData || null,
+    error: error?.message ?? null,
+    success: !error,
+  };
+}
+
+export async function changePassword(
+  newPassword: string,
+): Promise<AuthResponse> {
+  const supabase = createClient(await cookies());
+  const { data: resetPasswordData, error } = await supabase.auth.updateUser({
+    password: newPassword,
+  });
+
+  return {
+    data: resetPasswordData || null,
+    error: error?.message ?? null,
+    success: !error,
+  };
+}
