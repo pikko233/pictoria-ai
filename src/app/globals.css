@@ -7,7 +7,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -48,10 +48,36 @@
   --radius-4xl: calc(var(--radius) * 2.6);
   --animate-gradient: gradient 8s linear infinite;
   @keyframes gradient {
-  to {
-    background-position: var(--bg-size, 300%) 0;
+    to {
+      background-position: var(--bg-size, 300%) 0;
     }
   }
+  --animate-marquee: marquee var(--duration) infinite linear;
+  --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(calc(-100% - var(--gap)));
+    }
+  }
+  @keyframes marquee-vertical {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(calc(-100% - var(--gap)));
+    }
+  }
+}
+
+.sub-heading {
+  @apply text-xl sm:text-2xl md:text-3xl lg:text-4xl tracking-tight font-black;
+}
+
+.sub-text {
+  @apply text-xs sm:text-sm md:text-base lg:text-lg text-muted-foreground;
 }
 
 :root {

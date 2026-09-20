@@ -1,15 +1,17 @@
+"use server";
+
 import { createClient } from "@/lib/supabase/server";
 import { Credit } from "@/lib/types";
 import { cookies } from "next/headers";
 
 type Response<T> =
   | {
-      success: boolean;
+      success: true;
       error: null;
       data: T;
     }
   | {
-      success: boolean;
+      success: false;
       error: string;
       data: null;
     };

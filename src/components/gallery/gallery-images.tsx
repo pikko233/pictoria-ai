@@ -49,7 +49,7 @@ export const GalleryImages = ({ images }: { images: ImageRowType[] }) => {
 
   return (
     <section className="container mx-auto py-8">
-      <div className="columns-2 md:columns-4 gap-4 space-y-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         {displayImages.map((image) => (
           <div
             key={image.id}
@@ -57,10 +57,8 @@ export const GalleryImages = ({ images }: { images: ImageRowType[] }) => {
             onClick={() => setSelectedImage(image)}
           >
             {/* 详情-遮罩层 */}
-            <div className="absolute inset-0 opacity-0 duration-300 bg-black group-hover:opacity-70 flex justify-center items-center rounded">
-              <p className="text-primary-foreground text-lg font-semibold">
-                查看详情
-              </p>
+            <div className="absolute inset-0 opacity-0 duration-300 bg-black group-hover:opacity-80 flex justify-center items-center rounded">
+              <p className="text-white/90 text-lg font-semibold">查看详情</p>
             </div>
             <Image
               src={image.url}

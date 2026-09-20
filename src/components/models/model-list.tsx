@@ -42,29 +42,12 @@ import {
 import { formatDistanceToNow } from "date-fns";
 import { zhCN } from "date-fns/locale";
 import Link from "next/link";
-import { GENDER_LABEL_MAP } from "@/constants";
+import { GENDER_LABEL_MAP, TRAINING_STATUS_MAP } from "@/constants";
 import { cn } from "@/lib/utils";
 import { toast } from "../ui/toast";
 import { deleteModel } from "@/app/actions/model-actions";
 import { useState } from "react";
-
-type TrainingStatus = Database["public"]["Enums"]["training_status"];
-
-const TRAINING_STATUS_MAP = {
-  starting: { label: "排队中", icon: LoaderCircle, className: "text-blue-500" },
-  processing: {
-    label: "训练中",
-    icon: LoaderCircle,
-    className: "text-blue-500",
-  },
-  succeeded: {
-    label: "训练完成",
-    icon: CheckCircle2,
-    className: "text-green-500",
-  },
-  failed: { label: "训练失败", icon: XCircle, className: "text-destructive" },
-  canceled: { label: "已取消", icon: Ban, className: "text-muted-foreground" },
-} as const;
+import { TrainingStatus } from "@/lib/types";
 
 const TrainingStatusBadge = ({ status }: { status: TrainingStatus | null }) => {
   if (!status) return null;

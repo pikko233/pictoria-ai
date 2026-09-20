@@ -11,7 +11,7 @@ import { useState } from "react";
 import { toast } from "../ui/toast";
 import { login } from "@/app/actions/auth-actions";
 import { Loader2 } from "lucide-react";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   email: z.email("邮箱格式不正确"),
@@ -26,6 +26,7 @@ type Props = {
 
 export const LoginForm = ({ className }: Props) => {
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(formSchema),
@@ -38,16 +39,14 @@ export const LoginForm = ({ className }: Props) => {
   const onSubmit = (values: LoginFormValues) => {
     setLoading(true);
     toast.promise(
-      new Promise(async (resolve, reject) => {
-        const { success, error } = await login(values);
-        if (success) {
+      // 成功时不复位 loading：router.push 要等 /dashboard 渲染完才切页，
+      // 提前停掉按钮转圈会让这段等待看起来像卡死
+      login(values).then(({ success, error }) => {
+        if (!success) {
           setLoading(false);
-          resolve(true);
-          redirect("/dashboard");
-        } else {
-          setLoading(false);
-          reject(error);
+          throw new Error(error ?? "登录失败");
         }
+        router.push("/dashboard");
       }),
       {
         loading: "登录中请稍后...",
