@@ -29,7 +29,10 @@ export const Pricing = ({ products, mostPopular = "Pro" }: Props) => {
   );
 
   return (
-    <section className="w-full bg-muted flex flex-col items-center justify-center">
+    <section
+      id="pricing"
+      className="w-full bg-muted flex flex-col items-center justify-center"
+    >
       <div className="w-full container mx-auto py-32 px-6 flex flex-col items-center gap-6">
         <div className="group relative mx-auto flex items-center justify-center rounded-full px-4 py-1.5 shadow-[inset_0_-8px_10px_#8fdfff1f] transition-shadow duration-500 ease-out hover:shadow-[inset_0_-5px_10px_#8fdfff3f]">
           <span

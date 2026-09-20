@@ -43,7 +43,7 @@ const faqsList = [
 export const Faqs = () => {
   return (
     <section
-      id="testimonials"
+      id="FAQs"
       className="w-full bg-background flex flex-col items-center justify-center py-32 px-0 lg:px-8 overflow-hidden gap-6"
     >
       <div className="group pointer-events-auto relative rounded-full px-4 py-1.5 shadow-[inset_0_-8px_10px_#8fdfff1f] transition-all duration-500 ease-out hover:shadow-[inset_0_-5px_10px_#8fdfff3f] w-fit">
