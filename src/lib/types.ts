@@ -1,9 +1,10 @@
-import { Tables } from "@database.types";
+import { Database, Tables } from "@database.types";
 
 export type Product = Tables<"products">;
 export type Price = Tables<"prices">;
 export type Subscription = Tables<"subscriptions">;
 export type Credit = Tables<"credits">;
+export type Model = Tables<"models">;
 
 export interface ProductWithPrices extends Product {
   prices: Price[];
@@ -18,3 +19,5 @@ export interface PriceWithProduct extends Price {
 export interface SubscriptionWithProducts extends Subscription {
   prices: PriceWithProduct | null;
 }
+
+export type TrainingStatus = Database["public"]["Enums"]["training_status"];

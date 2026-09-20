@@ -13,6 +13,7 @@ import { Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
 import { NavUser } from "./nav-user";
+import { getSubscription, getUser } from "@/lib/supabase/queries";
 
 export async function AppSidebar({
   ...props
@@ -23,6 +24,7 @@ export async function AppSidebar({
     email: data.user?.user_metadata.email,
     name: data.user?.user_metadata.full_name,
   };
+  const subscription = await getSubscription(supabase);
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -36,7 +38,9 @@ export async function AppSidebar({
           </div>
           <div className="grid flex-1 text-left text-sm leading-tight">
             <span className="truncate font-medium">Pictoria AI</span>
-            <span className="truncate text-xs">Pro</span>
+            <span className="truncate text-xs">
+              {subscription.prices?.products?.name ?? "Free"}
+            </span>
           </div>
         </SidebarMenuButton>
       </SidebarHeader>

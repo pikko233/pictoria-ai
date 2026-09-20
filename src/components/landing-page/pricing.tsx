@@ -30,11 +30,11 @@ export const Pricing = ({ products, mostPopular = "Pro" }: Props) => {
 
   return (
     <section className="w-full bg-muted flex flex-col items-center justify-center">
-      <div className="w-full container mx-auto py-32 flex flex-col items-center gap-8">
+      <div className="w-full container mx-auto py-32 px-6 flex flex-col items-center gap-6">
         <div className="group relative mx-auto flex items-center justify-center rounded-full px-4 py-1.5 shadow-[inset_0_-8px_10px_#8fdfff1f] transition-shadow duration-500 ease-out hover:shadow-[inset_0_-5px_10px_#8fdfff3f]">
           <span
             className={cn(
-              "animate-gradient absolute inset-0 block h-full w-full rounded-[inherit] bg-gradient-to-r from-[#ffaa40]/50 via-[#9c40ff]/50 to-[#ffaa40]/50 bg-[length:300%_100%] p-[1px]",
+              "animate-gradient absolute inset-0 block h-full w-full rounded-[inherit] bg-linear-to-r from-[#ffaa40]/50 via-[#9c40ff]/50 to-[#ffaa40]/50 bg-size-[300%_100%] p-px",
             )}
             style={{
               WebkitMask:
@@ -50,8 +50,10 @@ export const Pricing = ({ products, mostPopular = "Pro" }: Props) => {
           </AnimatedGradientText>
         </div>
 
-        <h1 className="text-4xl font-bold tracking-wide">选择最适合你的方案</h1>
-        <p className="text-base text-muted-foreground">
+        <h1 className="text-2xl md:text-4xl font-black tracking-tight">
+          选择最适合你的方案
+        </h1>
+        <p className="text-sm md:text-base text-muted-foreground text-center">
           选择价格实惠的方案，用最出色的功能吸引受众、培养客户忠诚度、驱动销售增长。
         </p>
 
@@ -72,7 +74,7 @@ export const Pricing = ({ products, mostPopular = "Pro" }: Props) => {
         </div>
 
         {products.length > 0 && (
-          <div className="grid grid-cols-3 mx-auto gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 mx-auto gap-8">
             {products.map((product) => {
               const price = product.prices.find(
                 (price) => price.interval === billingInterval,

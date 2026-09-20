@@ -107,8 +107,8 @@ export const PlanSummary = ({
         </h3>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-8 gap-4 w-full">
-          <div className="col-span-5 flex flex-col pr-12">
+        <div className="grid grid-cols-5 md:grid-cols-8 gap-8 w-full">
+          <div className="col-span-5 flex flex-col">
             <div className="flex items-center justify-between font-normal pb-1">
               <span className="font-semibold">
                 {imageGenCount}/{maxImageGenCount}
@@ -126,7 +126,7 @@ export const PlanSummary = ({
               />
             </div>
           </div>
-          <div className="col-span-5 flex flex-col pr-12">
+          <div className="col-span-5 flex flex-col">
             <div className="flex items-center justify-between font-normal pb-1">
               <span className="font-semibold">
                 {modelTrainCount}/{maxModelTrainCount}
@@ -144,7 +144,7 @@ export const PlanSummary = ({
               />
             </div>
           </div>
-          <div className="col-span-3 flex items-center justify-between">
+          <div className="col-span-5 md:col-span-3 flex items-start justify-between gap-2">
             <div className="flex flex-col text-sm">
               <span className="font-normal">
                 价格/{INTERVAL_LABEL_MAP[interval!]}

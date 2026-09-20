@@ -26,7 +26,7 @@ const Page = async () => {
       <p className="text-sm text-muted-foreground mt-2">
         管理你的订阅和账单信息
       </p>
-      <div className="grid gap-10 mt-8">
+      <div className="grid gap-4 mt-8">
         <PlanSummary
           user={user}
           subscription={subscription}

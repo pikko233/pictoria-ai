@@ -171,6 +171,11 @@ function CarouselItem({ className, ...props }: React.ComponentProps<"div">) {
   )
 }
 
+// outline 变体在暗色下是半透明的（dark:bg-input/30 + 白 15% 边框），
+// 箭头压在图片上时几乎看不见，这里统一补足底色和边框对比度
+const navButtonClassName =
+  "bg-background/90 shadow-sm backdrop-blur-sm hover:bg-background dark:border-white/30 dark:bg-background/85 dark:hover:border-white/45 dark:hover:bg-background"
+
 function CarouselPrevious({
   className,
   variant = "outline",
@@ -189,6 +194,7 @@ function CarouselPrevious({
         orientation === "horizontal"
           ? "inset-y-0 -left-12 my-auto"
           : "-top-12 left-1/2 -translate-x-1/2 rotate-90",
+        navButtonClassName,
         className
       )}
       disabled={!canScrollPrev}
@@ -219,6 +225,7 @@ function CarouselNext({
         orientation === "horizontal"
           ? "inset-y-0 -right-12 my-auto"
           : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90",
+        navButtonClassName,
         className
       )}
       disabled={!canScrollNext}
